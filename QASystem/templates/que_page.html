@@ -1,0 +1,573 @@
+{% extends 'home_base.html' %}
+{% block head %}
+
+<head>
+    <title>سوالات</title>
+    <script src="/static/static_1/js/jquery.min.js"></script>
+    <script src="/static/static_1/js/slim.min.js"></script>
+    <script src="/static/static_1/js/summernote.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/static/ques_ans.css">
+    <link href="/static/static_1/css/summernote.css" rel="stylesheet">
+
+    <script>
+        $(document).ready(function () {
+            $('#summernote').summernote();
+        });
+
+        function pop_over() {
+            $('[data-toggle="popover"]').popover({
+                placement: 'top',
+                trigger: 'hover'
+            });
+        }
+
+        $(document).ready(function () {
+            pop_over()
+        });
+
+        function validate() {
+            var markupStr = $('#summernote').val();
+            cleaned = jQuery(markupStr).text();
+
+            if (markupStr == '' || markupStr == "<br>" || cleaned == '') {
+                document.getElementById("msg").innerHTML = "لطفا پاسخ خود را وارد نمایید.";
+                $('#myModal11').modal('show');
+            }
+            else {
+                {#document.formx.submit();#}
+                $.ajax({
+                    type: 'POST',
+                    url: "/post_answer",
+                    data: {q_user_id : {{quedict['uid']}}, qid : {{quedict['id']}}, editordata : $('#summernote').val()},
+                    dataType: "text",
+                    success: function(data) {
+                        if ($.trim(data) == "success")
+                            location.reload();
+                        else if ($.trim(data) == "similar answer") {
+                            document.getElementById("msg").innerHTML = "پاسخ شما شباهت زیادی به پاسخ های داده شده دارد، از ثبت این پاسخ معذوریم!";
+                            $('#myModal11').modal('show');
+                        } else if($.trim(data) == "error")
+                            window.location.replace("error.html");
+                        else if($.trim(data) == "user_banned")
+                            window.location = "/";
+                    }
+                });
+            }
+        }
+        function validatecomment(x) {
+            var qid = document.getElementById("que__id").value;
+            var aid = document.getElementById(x.getAttribute("id") + "ansid").value;
+            var cmntbox = document.getElementById(x.getAttribute("id") + "commentbox").value;
+            if (cmntbox == '') {
+                document.getElementById("msg").innerHTML = "لطفا متن خود را وارد نمایید.";
+                $('#myModal11').modal('show');
+            }
+            else {
+                $.post("/post_comment_1",
+                    {
+                        ans__id: aid,
+                        que__id: qid,
+                        commentbox: cmntbox
+                    },
+                    function (data, status) {
+                        $("#refreshid").load(location.href + " #refreshid");
+                    }
+                );
+            }
+        }
+        function addtodo(obj) {
+            uid = document.getElementById("usr_id").value;
+            qid = obj.getAttribute("name");
+            if (uid == 0) {
+                document.getElementById("msg").innerHTML = "لطفا وارد سیستم شوید"
+                $('#myModal11').modal('show');
+            }
+            else {
+                $.post("/add_answer_later_1",
+                    {
+                        usr: uid,
+                        que: qid
+                    },
+                    function (data, status) {
+                        q_id = obj.getAttribute("id");
+                        qid_1 = qid + "+remove";
+                        document.getElementById(q_id).style.display = 'none';
+                        document.getElementById(qid_1).style.display = 'inline';
+
+                    }
+                );
+            }
+        }
+        function removetodo(obj) {
+            uid = document.getElementById("usr_id").value;
+            qid = obj.getAttribute("name");
+            if (uid == 0) {
+                document.getElementById("msg").innerHTML = "لطفا وارد سیستم شوید"
+                $('#myModal11').modal('show');
+            }
+            else {
+                $.post("/rm_answer_later_1",
+                    {
+                        usr: uid,
+                        que: qid
+                    },
+                    function (data, status) {
+                        q_id = obj.getAttribute("id");
+                        qid_1 = qid + "+add";
+                        document.getElementById(q_id).style.display = 'none';
+                        document.getElementById(qid_1).style.display = 'inline';
+                    }
+                );
+            }
+        }
+        function addbookmark(obj) {
+            uid = document.getElementById("usr_id").value;
+            qid = obj.getAttribute("name");
+            if (uid == 0) {
+                document.getElementById("msg").innerHTML = "لطفا وارد سیستم شوید"
+                $('#myModal11').modal('show');
+            }
+            else {
+                $.post("/add_bookmark_1",
+                    {
+                        usr: uid,
+                        que: qid
+                    },
+                    function (data, status) {
+                        q_id = obj.getAttribute("id");
+                        document.getElementById(q_id).style.display = "none";
+                        qid_1 = qid + "+removebook";
+                        document.getElementById(qid_1).style.display = "inline";
+                    }
+                );
+            }
+        }
+        function removebookmark(obj) {
+            uid = document.getElementById("usr_id").value;
+            qid = obj.getAttribute("name");
+            if (uid == 0) {
+                document.getElementById("msg").innerHTML = "لطفا وارد سیستم شوید"
+                $('#myModal11').modal('show');
+            }
+            else {
+                $.post("/rm_bookmark_1",
+                    {
+                        usr: uid,
+                        que: qid
+                    },
+                    function (data, status) {
+                        q_id = obj.getAttribute("id");
+                        qid_1 = qid + "+addbook";
+                        document.getElementById(q_id).style.display = 'none';
+                        document.getElementById(qid_1).style.display = 'inline';
+                    }
+                );
+            }
+        }
+        function queupvote(obj) {
+            uid = document.getElementById("usr_id").value;
+            qid = document.getElementById("que__id1").value;
+            if (uid == 0) {
+                document.getElementById("msg").innerHTML = "لطفا وارد سیستم شوید"
+                $('#myModal11').modal('show');
+            }
+            else {
+                $.post("/upvote_que_1",
+                    {
+                        usr: uid,
+                        que: qid
+                    },
+                    function (data, status) {
+                        $("#refreshid1").load(location.href + " #refreshid1");
+                        if($.trim(data) == "score_limit") {
+                            document.getElementById("msg").innerHTML = "امتیاز لازم برای این کار را ندارید. حداقل 15 امتیاز باید کسب کنید."
+                            $('#myModal11').modal('show');
+                        } else if($.trim(data) == "max_upvote_limit") {
+                            document.getElementById("msg").innerHTML = "تعداد رای های شما بیش از حد مجاز است. نیازمند امتیاز بیشتری می باشید."
+                            $('#myModal11').modal('show');
+                        } else if($.trim(data) == "user_banned") {
+                            window.location = "/";
+                        }
+                    }
+                ).done(function () { pop_over() });
+            }
+        }
+        function quedownvote(obj) {
+            uid = document.getElementById("usr_id").value;
+            qid = document.getElementById("que__id1").value;
+            if (uid == 0) {
+                document.getElementById("msg").innerHTML = "لطفا وارد سیستم شوید"
+                $('#myModal11').modal('show');
+            }
+            else {
+                $.post("/downvote_que_1",
+                    {
+                        usr: uid,
+                        que: qid
+                    },
+                    function (data, status) {
+                        $("#refreshid1").load(location.href + " #refreshid1");
+                    }
+                ).done(function () { pop_over() });
+            }
+        }
+        function queneutral(obj) {
+            uid = document.getElementById("usr_id").value;
+            qid = document.getElementById("que__id1").value;
+            if (uid == 0) {
+                document.getElementById("msg").innerHTML = "لطفا وارد سیستم شوید"
+                $('#myModal11').modal('show');
+            }
+            else {
+                $.post("/neutral_que_1",
+                    {
+                        usr: uid,
+                        que: qid
+                    },
+                    function (data, status) {
+                        $("#refreshid1").load(location.href + " #refreshid1");
+                    }
+                ).done(function () { pop_over() });
+            }
+        }
+        function ansupvote(obj) {
+            uid = document.getElementById("usr_id").value;
+            aid = obj.getAttribute("id");
+            if (uid == 0) {
+                document.getElementById("msg").innerHTML = "لطفا وارد سیستم شوید"
+                $('#myModal11').modal('show');
+            }
+            else {
+                $.post("/upvote_ans_1",
+                    {
+                        usr: uid,
+                        ans: aid
+                    },
+                    function (data, status) {
+
+                        $("#refreshid").load(location.href + " #refreshid");
+                        if($.trim(data) == "score_limit") {
+                            document.getElementById("msg").innerHTML = "امتیاز لازم برای این کار را ندارید. حداقل 15 امتیاز باید کسب کنید."
+                            $('#myModal11').modal('show');
+                        } else if($.trim(data) == "max_upvote_limit") {
+                            document.getElementById("msg").innerHTML = "تعداد رای های شما بیش از حد مجاز است. نیازمند امتیاز بیشتری می باشید."
+                            $('#myModal11').modal('show');
+                        } else if($.trim(data) == "user_banned") {
+                            window.location = "/";
+                        }
+                    }
+                );
+            }
+        }
+        function ansdownvote(obj) {
+            uid = document.getElementById("usr_id").value;
+            aid = obj.getAttribute("id");
+            if (uid == 0) {
+                document.getElementById("msg").innerHTML = "لطفا وارد سیستم شوید"
+                $('#myModal11').modal('show');
+            }
+            else {
+                $.post("/downvote_ans_1",
+                    {
+                        usr: uid,
+                        ans: aid
+                    },
+                    function (data, status) {
+                        $("#refreshid").load(location.href + " #refreshid");
+                    }
+                );
+            }
+        }
+        function ansneutral(obj) {
+            uid = document.getElementById("usr_id").value;
+            aid = obj.getAttribute("id");
+            if (uid == 0) {
+                document.getElementById("msg").innerHTML = "لطفا وارد سیستم شوید"
+                $('#myModal11').modal('show');
+            }
+            else {
+                $.post("/neutral_ans_1",
+                    {
+                        usr: uid,
+                        ans: aid
+                    },
+                    function (data, status) {
+                        $("#refreshid").load(location.href + " #refreshid");
+                    }
+                );
+            }
+        }
+
+    </script>
+
+</head>
+{% endblock %}
+{% block body %}
+<br>
+
+<div class="queanscontainer">
+    <input type="hidden" value="{{uid}}" id="usr_id">
+    <input type="hidden" name="que__id" id="que__id1" value="{{quedict['id']}}">
+    <div class="quebox">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <span class="panel-title">
+                    <span class="quetitle">
+                        {{quedict['title']}}
+                    </span>
+            </div>
+            <div class="panel-body">
+                {{quedict['question_content'] | safe }}
+                <hr>
+                <span class="tag">
+                    {% for tgitem in quedict['tag'] %}
+                    <a class="label label-info taglable" href="{{url_for('search_perticular_tag',search_tid=tgitem['id'])}}">{{tgitem['name']}}</a>
+                    {% endfor %}
+                </span>
+
+                <span class="askerinfo">
+                    <div>
+                         : تاریخ ثبت
+                        <span>{{quedict['date']}}</span>
+                    </div>
+                    <div>
+                        <span><a href="{{url_for('view_profile',uid=quedict['uid'])}}">{{quedict['ufname']}}
+                                {{quedict['ulname']}}</a></span>: توسط
+                    </div>
+                </span>
+
+            </div>
+            <div id="refreshid1">
+                <div class="panel-footer">
+                    <span>
+
+                        {% if quedict['user_voted_question']==True %}<i data-toggle="popover" data-content="رای شما ثبت شده ولی به دلیل محدودیت امتیاز شما، رای قابل مشاهده نمی باشد" class="fa fa-info-circle pointer" ></i>{% endif %}
+
+                        <span class="updownvotesym" id="emptyupthumb" data-toggle="popover" {% if quedict['upvote']==0
+                            %} style="display:inline" {% else %} style="display:none" {% endif %} data-content="رای مثبت">
+                            <i class="fa fa-thumbs-o-up" onclick="queupvote(this)"></i>
+                        </span>
+                        <span class="updownvotesym" id="fillupthumb" data-toggle="popover" {% if quedict['upvote']!=0
+                            %} style="display:inline" {% else %} style="display:none" {% endif %} data-content="پاک کردن">
+                            <i class="fa fa-thumbs-up" onclick="queneutral(this)"></i>
+                        </span>
+
+                        <span class="updownvotesym">{{quedict['votes']}}</span>
+
+                        <span class="updownvotesym" id="emptydownthumb" data-toggle="popover" {% if quedict['downvote']==0
+                            %} style="display:inline" {% else %} style="display:none" {% endif %} data-content="رای منفی">
+                            <i class="fa fa-thumbs-o-down" onclick="quedownvote(this)"></i>
+                        </span>
+                        <span class="updownvotesym" id="filldownthumb" data-toggle="popover" {% if quedict['downvote']!=0
+                            %} style="display:inline" {% else %} style="display:none" {% endif %} data-content="پاک کردن">
+                            <i class="fa fa-thumbs-down" onclick="queneutral(this)"></i>
+                        </span>
+
+                        <span style="float:left">
+                            {% if quedict['answered']==1 %}
+                            <span class="bookmarksym" data-toggle="popover" data-content="پاسخ داده شده">
+                                <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                            </span>
+                            {% else %}
+
+                            <span class="bookmarksym" data-toggle="popover" data-content="پاسخ در آینده" id="{{quedict['id']}}+add"
+                                name="{{quedict['id']}}" onclick="addtodo(this)" {% if quedict['ans_later']==0 %}style="display:inline"
+                                {% else %} style="display:none" {% endif %}>
+                                <span class="fa fa-plus-square-o"></span>
+                            </span>
+
+                            <span class="bookmarksym" data-toggle="popover" data-content="حذف از لیست پاسخ در آینده" id="{{quedict['id']}}+remove"
+                                name="{{quedict['id']}}" onclick="removetodo(this)" {% if quedict['ans_later']==1
+                                %}style="display:inline" {% else %} style="display:none" {% endif %}>
+                                <span class="fa fa-plus-square"></span>
+                            </span>
+
+                            {% endif %}
+
+                            <span class="bookmarksym" data-toggle="popover" id="{{quedict['id']}}+addbook" name="{{quedict['id']}}"
+                                onclick="addbookmark(this)" data-content="نشانه گذاری" {% if quedict['BID']==0 %}style="display:inline"
+                                {% else %} style="display:none" {% endif %}>
+                                <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
+                            </span>
+
+                            <span class="bookmarksym" data-toggle="popover" id="{{quedict['id']}}+removebook" name="{{quedict['id']}}"
+                                onclick="removebookmark(this)" data-content="حذف نشانه" {% if quedict['BID']==1
+                                %}style="display:inline" {% else %} style="display:none" {% endif %}>
+                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                            </span>
+
+                        </span>
+
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="refreshid">
+        {% for i in anslist %}
+        <div class="ansbox">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <span class="panel-title">
+                        <span class="answertitle">
+                            <span>
+                                <span><a class="ansby" href="{{url_for('view_profile',uid=i['uid'])}}">{{i['ufname']}}
+                                        {{i['ulname']}}</a></span> : پاسخ توسط
+                            </span>
+                        </span>
+                    </span>
+
+                </div>
+                <div class="panel-body">
+                    {{ i['content'] | safe }}
+                    <br>
+                    <span class="comment">
+                        {% for j in i['comments'] %}
+                        <span>
+                            <hr class="commenthr">
+                            <span>
+                                {{j['content']}}
+                                <span class="commentposterinfo">
+                                    <span>
+                                        -- توسط : <span><a href="{{url_for('view_profile',uid=j['uid'])}}">{{j['ufname']}}
+                                                {{j['ulname']}}</a></span>
+                                    </span>
+                                    <span>
+                                        درتاریخ :
+                                        <span>{{j['date']}}</span>
+                                    </span>
+                                </span>
+                            </span>
+                        </span>
+                        <br>
+                        {% endfor %}
+                        <br>
+                        <div>
+                            <form method="POST">
+                                <input type="hidden" name="que__id" id="que__id" value="{{quedict['id']}}">
+                                <input type="hidden" name="ans__id" id="{{i['a_id']}}ansid" value="{{i['a_id']}}">
+                                <div style="width:60%;float: right;">
+                                    <input type="text" class="form-control" id="{{i['a_id']}}commentbox" name="commentbox"
+                                        placeholder="نظر خود را بنویسید..." dir="rtl">
+                                </div>
+                                <div style="float:right;margin-right: 12px">
+                                    <input type="button" class="btn btn-primary" id="{{i['a_id']}}" onclick="validatecomment(this)"
+                                        value="نظر دادن" {% if uid==0 %}disabled {% endif %}>
+                                </div>
+                            </form>
+                        </div>
+                    </span>
+
+                </div>
+
+                <div class="panel-footer">
+                    <span>
+
+                        {% if i['user_voted_answer']==True %}<i data-toggle="popover" data-content="رای شما ثبت شده ولی به دلیل محدودیت امتیاز شما، رای قابل مشاهده نمی باشد" class="fa fa-info-circle pointer" ></i>{% endif %}
+
+                        <span class="updownvotesym" data-toggle="popover" data-content="رای مثبت" {% if i['upvote']==0 %}
+                            style="display:inline" {% else %} style="display:none" {% endif %}>
+                            <i class="fa fa-thumbs-o-up" id="{{i['a_id']}}" onclick="ansupvote(this)"></i>
+                        </span>
+                        <span class="updownvotesym" data-toggle="popover" data-content="پاک کردن" {% if i['upvote']!=0 %}
+                            style="display:inline" {% else %} style="display:none" {% endif %}>
+                            <i class="fa fa-thumbs-up" id="{{i['a_id']}}" onclick="ansneutral(this)"></i>
+                        </span>
+
+                        <span class="updownvotesym"> {{i['votes']}} </span>
+
+                        <span class="updownvotesym" data-toggle="popover" data-content="رای منفی" {% if i['downvote']==0
+                            %} style="display:inline" {% else %} style="display:none" {% endif %}>
+                            <i class="fa fa-thumbs-o-down" id="{{i['a_id']}}" onclick="ansdownvote(this)"></i>
+                        </span>
+
+                        <span class="updownvotesym" data-toggle="popover" data-content="پاک کردن" {% if i['downvote']!=0
+                            %} style="display:inline" {% else %} style="display:none" {% endif %}>
+                            <i class="fa fa-thumbs-down" id="{{i['a_id']}}" onclick="ansneutral(this)"></i>
+                        </span>
+
+
+                        <span style="float:left">
+                            <span>
+                                : تاریخ ثبت
+                                <span>{{i['date']}}</span>
+                            </span>
+                        </span>
+
+                    </span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <form name="formx">
+        <div class="col-md-12 form-group group-mail">
+            <!-- <div id="summernote"></div> -->
+            <textarea class="summernote" id="summernote" name="editordata"></textarea>
+        </div>
+        <input type="hidden" value="{{quedict['id']}}" name="qid" id="qid">
+        <input type="hidden" value="{{quedict['uid']}}" name="q_user_id" id="q_user_id">
+        <div class="col-md-12 form-group group-mail" style="text-align: right;">
+            <button type="button" class="btn btn-primary" style="width: 70px" onclick="validate()" id="postansid" {% if chkbtn==1 or uid==0
+                %}disabled {% endif %}>
+                ثبت
+            </button>
+        </div>
+    </form>
+
+
+</div>
+<div class="sidebar">
+	<fieldset>
+		<legend>جستجو</legend>
+		<div>
+				<form action="{{url_for('search_question')}}" method="post" name="search_que_form">
+					<div style="width:80%;float:right;margin-right: 5px">
+						<input dir="rtl" class="form-control" type="text" name="search_question_input" id="search_question_input1" placeholder="جستجو سوال" required>
+					</div>
+					<div style="width:10%;float:right;margin-left: 0;">
+
+						<button type="submit" class="btn btn-default">
+							<span class="glyphicon glyphicon-search"></span>
+						</button>
+					</div>
+				</form>
+
+				<br><br>
+
+				<form action="{{url_for('search_tag')}}" method="post" name="search_tag_form">
+					<div style="width:80%;float:right;margin-right: 5px">
+						<input dir="rtl" class="form-control" type="text" name="search_tag_input" id="search_tag_input1" placeholder="جستجو با نشانه" required>
+					</div>
+					<div style="width:10%;float:right;margin-left: 0;">
+						<button type="submit" class="btn btn-default">
+							<span class="glyphicon glyphicon-search"></span>
+						</button>
+					</div>
+				</form>
+				<br>
+		</div>
+	</fieldset>
+	<br>
+	<div style="float: right;padding-right: 5px;">
+        <a href="{{ url_for('ask_question') }}" class="btn btn-primary">پرسش</a>
+	</div>
+	<br>
+</div>
+<div class="clearfix"></div>
+
+<script>
+    $('#summernote').summernote({
+        toolbar: [
+            ['style', ['bold', 'italic', 'underline', 'clear']],
+            ['insert', ['link']],
+            ['para', ['ol']],
+        ],
+        placeholder: 'پاسخ خود را بنویسید',
+        tabsize: 2,
+        height: 250
+    });
+</script>
+
+{% endblock %}

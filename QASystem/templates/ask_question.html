@@ -1,0 +1,113 @@
+{% extends 'home_base.html' %}
+{% block head %}
+
+<head>
+	<title>پرسش سوال</title>
+	<script src="/static/static_1/js/slim.min.js"></script>
+	<script src="/static/static_1/js/summernote.js"></script>
+
+    <link href="/static/static_1/css/summernote.css" rel="stylesheet">
+
+	<script>
+
+		$(document).ready(function() {
+			$('#summernote').summernote();
+		});
+
+		function fun() {
+			
+			var title = document.getElementById("title")
+			var markupStr = $('#summernote').val()
+			var tag1 = document.getElementById("tag_1")
+			var tag2 = document.getElementById("tag_2")
+			var tag3 = document.getElementById("tag_3")
+			var tag4 = document.getElementById("tag_4")
+			var tag5 = document.getElementById("tag_5")
+
+			cleaned = jQuery(markupStr).text();
+
+			if (title.value == '') {
+				document.getElementById("msg").innerHTML = "لطفا عنوان را وارد نمایید."
+				$('#myModal11').modal('show');
+			}
+			else if(markupStr == '' || markupStr == "<br>" || cleaned == ''){
+				document.getElementById("msg").innerHTML = "لطفا متن خود را وارد نمایید. در صورتی فقط می خواهید عکس آپلود کنید، توضیحی برای عکس خود بنویسید.";
+				$('#myModal11').modal('show');
+			}
+			else if(tag1.value == ''){
+				document.getElementById("msg").innerHTML = "حداقل یک نشانه اجباری است."
+				$('#myModal11').modal('show');
+			}
+			else{
+				document.form1.submit();
+			}
+		}
+	</script>
+</head>
+{% endblock %}
+{% block body %}
+<br />
+<div class="contac1t">
+	<div class="container">
+		<div class="w3-heading-grid">
+			<div>
+				<h3 class="tittle">پرسش سوال</h3>
+				<div class="border"></div>
+			</div>
+		</div>
+		<form action="{{ url_for('ask_question_1') }}" method="POST" enctype="multipart/form-data" name="form1" style="text-align: right">
+			<p style="color:red">* موارد ضروری </p>
+
+			<div class="col-md-12 form-group group-mail">
+				<label>عنوان <strong style="color:red">*</strong></label>
+				<input dir="rtl" type="text" class="form-control" placeholder="عنوان" id="title" name="title">
+			</div>
+			<div class="clearfix"></div>
+			<div class="col-md-12 form-group group-mail">
+				<label>محتوا <strong style="color:red">*</strong></label>
+				<!-- <div id="summernote"></div> -->
+				<textarea dir="rtl" class="summernote" id="summernote" name="editordata"></textarea>
+			</div>
+			<div class="clearfix"></div>
+			<div class="col-md-8 form-group group-mail">
+				<label>نشانه اول <strong style="color:red">*</strong></label>
+				<input dir="rtl" type="text" class="form-control" placeholder="نشانه اول" id="tag_1" name="tag_1">
+			</div>
+			<div class="col-md-8 form-group group-mail">
+				<label>نشانه دوم</label>
+				<input dir="rtl" type="text" class="form-control" placeholder="نشانه دوم" id="tag_2" name="tag_2">
+			</div>
+			<div class="col-md-8 form-group group-mail">
+				<label>نشانه سوم</label>
+				<input dir="rtl" type="text" class="form-control" placeholder="نشانه سوم" id="tag_3" name="tag_3">
+			</div>
+			<div class="col-md-8 form-group group-mail">
+				<label>نشانه چهارم</label>
+				<input dir="rtl" type="text" class="form-control" placeholder="نشانه چهارم" id="tag_4" name="tag_4">
+			</div>
+			<div class="col-md-8 form-group group-mail">
+				<label>نشانه پنجم</label>
+				<input dir="rtl" type="text" class="form-control" placeholder="نشانه پنجم" id="tag_5" name="tag_5">
+			</div>
+			<div class="col-md-12 form-group">
+                <button type="reset" class="btn btn-default">پاک کردن</button>
+                <button type="button" class="btn btn-primary" onclick="fun()" {% if name=="#" %} disabled {% endif %}>ثبت</button>
+			</div>
+			<div class="clearfix"> </div>
+		</form>
+	</div>
+</div>
+<script>
+	$('#summernote').summernote({
+		toolbar: [
+			['style', ['bold', 'italic', 'underline', 'clear']],
+			['insert', ['link']],
+			['para', ['ol']],
+		],
+		placeholder: 'سوال خود را بنویسید',
+		tabsize: 2,
+		height: 300
+	});
+</script>
+
+{% endblock %}

@@ -1,0 +1,205 @@
+{% extends 'home_base.html' %}
+{% block head %}
+<head>
+<script>
+function fun(){
+	
+	var fname=document.getElementById("fname1")
+	var mname=document.getElementById("mname1")
+	var lname=document.getElementById("lname1")
+	var email=document.getElementById("email1")
+	var mobile=document.getElementById("mobile1")
+	var date=document.getElementById("date1")
+	var current_pos=document.getElementById("current_pos")
+	var college=document.getElementById("college")
+	var password=document.getElementById("pass1")
+	var confirm=document.getElementById("cpass1")
+	var file=document.getElementById("file1")
+	var country_id=document.getElementById('countrty')
+	x=file.value.split(".")
+	 var reg = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+	if(fname.value=='')
+	{
+		document.getElementById("msg").innerHTML="لطفا نام خود را وارد نمایید"
+		$('#myModal11').modal('show');
+	}
+	else if(lname.value=='')
+	{
+		document.getElementById("msg").innerHTML="لطفا نام خانوادگی خود را وارد نمایید"
+		$('#myModal11').modal('show');
+	}
+	else if(email.value=='')
+	{
+		document.getElementById("msg").innerHTML="لطفا ایمیل خود را وارد نمایید"
+		$('#myModal11').modal('show');
+	}
+	else if(reg.test(email.value) == false)
+	{
+		document.getElementById("msg").innerHTML="لطفا ایمیل معتبر وارد نمایید"
+		$('#myModal11').modal('show');
+	}
+	else if(mobile.value!='' && mobile.value.length!=10)
+	{
+		document.getElementById("msg").innerHTML="شماره همراه باید 10 رقم باشد"
+		$('#myModal11').modal('show');
+	}
+	else if(password.value=='')
+	{
+		document.getElementById("msg").innerHTML="لطفا گذرواژه را وارد نمایید"
+		$('#myModal11').modal('show');
+	}
+	else if(confirm.value=='')
+	{
+		document.getElementById("msg").innerHTML="لطفا دوباره گذرواژه را وارد نمایید"
+		$('#myModal11').modal('show');
+	}
+	else if(password.value!=confirm.value)
+	{
+		document.getElementById("msg").innerHTML="گذرواژه و تکرار آن باید مشابه باشند"
+		$('#myModal11').modal('show');
+	}
+	else if(date.value=='')
+	{
+		document.getElementById("msg").innerHTML="لطفا تاریخ تولد خود را وارد نمایید"
+		$('#myModal11').modal('show');	
+	}
+	else if(current_pos.value=='')
+	{
+		document.getElementById("msg").innerHTML="لطفا محل فعلی خود را وارد نمایید"
+		$('#myModal11').modal('show');	
+	}
+	else if(country_id.value==0)
+	{
+		document.getElementById("msg").innerHTML="لطفا نام کشور خود را وارد نمایید"
+		$('#myModal11').modal('show');
+	}
+	else if(x[1]!='png' && x[1]!='jpeg' && x[1]!='jpg' && x[1]!='bmp' && file.value!='')
+	{
+		document.getElementById("msg").innerHTML="فرمت های قابل قبول: jpg/jpeg/png/bmp"
+		$('#myModal11').modal('show');
+	}
+	else{
+		 $.post("/validate_email_user",
+        {
+		  email:email.value,
+        },
+		function(data,status){
+			if(data=="wrong")
+			{
+				document.getElementById("msg").innerHTML="ایمیل وارد شده در سامانه وجود دارد"
+				$('#myModal11').modal('show');
+			}
+			else
+			{
+				document.form1.submit();
+			}
+        }
+        );		
+	}
+}
+</script>
+{% endblock %}
+</head>
+{% block body %}
+<br />
+<!-- start-->
+<div class="contac1t">
+	<div class="container">
+		<div class="w3-heading-grid">
+			<div>
+				<h3 class="tittle">ثبت نام</h3>
+				<div class="border"></div>
+			</div>
+		</div>
+		
+		<form action="{{ url_for('user_sign_up_1') }}" method="POST" enctype="multipart/form-data" name="form1" style="text-align: right">
+			<p style="color:red">*  موارد ضروری </p>
+			<div class="vali-form">
+
+				<div class="col-md-4 form-group group-mail">
+					<label>نام <strong style="color:red">*</strong></label>
+					<input dir="rtl" type="text" class="form-control" placeholder="نام" id="fname1" name="fname">
+				</div>
+				<div class="col-md-4 form-group group-mail">
+					<label>نام مستعار</label>
+					<input dir="rtl" type="text" class="form-control" placeholder="نام مستعار" id="mname1" name="mname">
+				</div>
+				<div class="col-md-4 form-group group-mail">
+					<label>نام خانوادگی <strong style="color:red">*</strong></label>
+					<input dir="rtl" type="text" class="form-control" placeholder="نام خانوادگی" id="lname1" name="lname">
+				</div>
+
+			</div>
+			<div class="col-md-8 form-group group-mail">
+				<label>ایمیل <strong style="color:red">*</strong></label>
+				<input type="text" class="form-control" placeholder="ایمیل" id="email1" name="email">
+			</div>
+			<div class="col-md-8 form-group group-mail">
+				<label>همراه</label>
+				<input type="number" class="form-control" placeholder="همراه" id="mobile1" name="mobile">
+			</div>
+			<div class="col-md-8 form-group group-mail">
+				<label>گذرواژه <strong style="color:red">*</strong></label>
+				<input type="password" class="form-control" placeholder="گذرواژه" id="pass1" name="password">
+			</div>
+			<div class="col-md-8 form-group group-mail">
+				<label>تایید گذرواژه <strong style="color:red">*</strong></label>
+				<input type="password" class="form-control" placeholder="تایید گذرواژه" id="cpass1" name="cpassword">
+			</div>
+			<div class="col-md-8 form-group ">
+                <input type="radio" name="gn" value="male" checked>مرد</input>
+                <input type="radio" value="female" name="gn">زن</input>
+                <label style="margin-left: 5px">: جنسیت</label>
+			</div>
+			<div class="col-md-8 form-group group-mail">
+				<label class="control-label">تاریخ تولد<strong style="color:red">*</strong></label>
+				<input type="date" class="form-control" class="form-control1 ng-invalid ng-invalid-required" ng-model="model.date"
+				 name="date" id="date1">
+			</div>
+			<div class="col-md-8 form-group group-mail">
+				<label class="control-label">سِمت فعلی<strong style="color:red">*</strong></label>
+				<input dir="rtl" type="text" class="form-control" placeholder="سِمت فعلی شما در شرکت " id="current_pos"
+				 name="cur_pos">
+			</div>
+			<div class="col-md-8 form-group group-mail">
+				<label class="control-label">دانشگاه</label>
+				<input dir="rtl" type="text" class="form-control" placeholder="نام دانشگاه" id="college" name="collegename">
+			</div>
+			<div class="col-md-8 form-group group-mail">
+				<label class="control-label">کشور<strong style="color:red">*</strong></label>
+				<select name="country" id="countrty" class="form-control">
+						<option value="0">انتخاب کشور</option>
+					{% for i in country %}
+					<option value="{{i['id']}}">{{i['name']}}</option>
+					{% endfor %}
+				</select>
+			</div>
+			<div class="col-md-8 form-group group-mail">
+				<label class="control-label">عکس پروفایل</label>
+				<input type="file" class="form-control" name="file" id="file1">
+			</div>
+			<div class="col-md-12 form-group">
+                <button type="reset" class="btn btn-default">پاک کردن</button>
+                <button type="button" class="btn btn-primary" onclick="fun()">ثبت</button>
+			</div>
+			<div class="clearfix"> </div>
+		</form>
+	</div>
+</div>
+<!-- end -->
+<div class="modal fade" id="myModal11" role="dialog">
+	<div class="modal-dialog">
+
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-body">
+				<p id="msg"></p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+			</div>
+		</div>
+
+	</div>
+</div>
+ {% endblock %}

@@ -1,0 +1,85 @@
+{% extends 'home_base.html' %}
+{% block head %}
+
+<head>
+	<title> ارتباط با ما </title>
+	<script>
+		function add_ct() {
+			var name = document.getElementById("name1").value;
+			var email = document.getElementById("email_ct1").value;
+			var mobile = document.getElementById("mobile1").value;
+			var message = document.getElementById("message1").value;
+			var reg = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+			var reg1 = /^[A-Za-z][A-Za-z ]+$/;
+			var reg2 = /^[0-9]+$/;
+			if (name == '') {
+				document.getElementById("msg").innerHTML = "لطفا نام خود را وارد نمایید."
+				$('#myModal11').modal('show');
+			}
+			else if (!name.match(reg1)) {
+				document.getElementById("msg").innerHTML = "فقط حروف الفبا قابل قبول است."
+				$('#myModal11').modal('show');
+			}
+			else if (email == '') {
+				document.getElementById("msg").innerHTML = "لطفا ایمیل خود را وارد نمایید."
+				$('#myModal11').modal('show');
+			}
+			else if (reg.test(email) == false) {
+				document.getElementById("msg").innerHTML = "لطفا ایمیل معتبر وارد نمایید."
+				$('#myModal11').modal('show');
+			}
+			else if (mobile == '') {
+				document.getElementById("msg").innerHTML = "لطفا شماره همراه خود را وارد نمایید."
+				$('#myModal11').modal('show');
+			}
+			else if (!mobile.match(reg2)) {
+				document.getElementById("msg").innerHTML = "فقط عدد قابل قبول است."
+				$('#myModal11').modal('show');
+			}
+			else if (mobile.length != 10) {
+				document.getElementById("msg").innerHTML = "شماره همراه باید 10 رقمی باشد"
+				$('#myModal11').modal('show');
+			}
+			else if (message == '') {
+				document.getElementById("msg").innerHTML = "لطفا پیام خود را وارد نمایید"
+				$('#myModal11').modal('show');
+			}
+			else {
+				alert("اطلاعات شما با موفقت ثبت شد.")
+				document.form1.submit();
+			}
+		}
+	</script>
+	{% endblock %}
+</head>
+{% block body %}
+<!-- start-->
+<br />
+<div>
+	<div class="container" style="text-align: right">
+		<div>
+			<div>
+				<h3 class="tittle">ارتباط با ما</h3>
+				<div class="border"></div>
+			</div>
+		</div>
+		<div class="contact-form">
+			<h4 style="color:#f36371">فرم ارتباطی</h4><br />
+			<form name="form1" action="{{ url_for('contact_us_1') }}" method="POST" enctype="multipart/form-data">
+
+				<input type="email" placeholder="ایمیل" id="email_ct1" name="email_ct">
+                <input dir="rtl" type="text" placeholder="همراه" id="mobile1" name="mobile">
+                <input dir="rtl" class="col-1" type="text" placeholder="نام" id="name1" name="name">
+                <textarea placeholder="متن" id="message1" name="message"></textarea>
+				<!-- <div class="g-recaptcha" data-sitekey="6LdvCjAUAAAAAI0AbUHdhWJ0x64bESY0qtg4Faxn"></div>  -->
+				<br /><input dir="rtl" type="button" class="btn-primary btn" value="ثبت" onclick="add_ct()">
+
+			</form>
+		</div>
+
+	</div>
+
+</div>
+<!-- end -->
+<br />
+{% endblock %}

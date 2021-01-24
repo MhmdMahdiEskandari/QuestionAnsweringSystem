@@ -1,0 +1,278 @@
+{% extends 'home_base.html' %}
+{% block head %}
+
+<head>
+	<title>Stackoverflow</title>
+	<script src="/static/static_1/js/jquery.min.js"></script>
+	<style>
+		.quebox{
+			margin: 10px;
+		}
+		.tag{
+			width: 60%;
+		}
+		.taglable{
+			color:black;
+			margin-left:5px;
+			background: #a0e9ff;
+		}
+		.askerinfo{
+			float: left;
+			font-size: 12px;
+			color: #9199a1;
+		}
+		.viewansvotes{
+			margin-left: 20px;
+		}
+		.quetitle{
+			font-size:16px;
+			text-decoration: none;
+			color:white;
+			font-weight: bold;
+		}
+		.bookmark{
+			float:right;
+			font-size:12px;
+		}
+		.bookmarksym{
+			margin-left: 15px;
+		}
+		.bookmarksym:hover{
+			display: inline-block;
+			cursor: pointer;
+		}
+		.panel-info > .panel-heading
+		{
+			background-color:#1acaff;
+		}
+		.queanscontainer{
+            width: 73%;
+            float: right;
+            margin-right: 1%;
+		}
+		.sidebar{
+			margin-top:15px; 
+			width:25%;
+			float:right;
+		}
+	</style>
+
+	<script>
+
+		function addtodo(obj) {
+			uid = document.getElementById("usr_id").value;
+			qid = obj.getAttribute("name");
+			if (uid == 0) {
+				document.getElementById("msg").innerHTML = "لطفا وارد سیستم شوید"
+				$('#myModal11').modal('show');
+			}
+			else {
+				$.post("/add_answer_later_1",
+					{
+						usr: uid,
+						que: qid
+					},
+					function (data, status) {
+						q_id = obj.getAttribute("id");
+						qid_1 = qid + "+remove";
+						document.getElementById(q_id).style.display = 'none';
+						document.getElementById(qid_1).style.display = 'inline';
+
+					}
+				);
+			}
+		}
+		function removetodo(obj) {
+			uid = document.getElementById("usr_id").value;
+			qid = obj.getAttribute("name");
+			if (uid == 0) {
+				document.getElementById("msg").innerHTML = "لطفا وارد سیستم شوید"
+				$('#myModal11').modal('show');
+			}
+			else {
+				$.post("/rm_answer_later_1",
+					{
+						usr: uid,
+						que: qid
+					},
+					function (data, status) {
+						q_id = obj.getAttribute("id");
+						qid_1 = qid + "+add";
+						document.getElementById(q_id).style.display = 'none';
+						document.getElementById(qid_1).style.display = 'inline';
+					}
+				);
+			}
+		}
+		function addbookmark(obj) {
+			uid = document.getElementById("usr_id").value;
+			qid = obj.getAttribute("name");
+			if (uid == 0) {
+				document.getElementById("msg").innerHTML = "لطفا وارد سیستم شوید"
+				$('#myModal11').modal('show');
+			}
+			else {
+				$.post("/add_bookmark_1",
+					{
+						usr: uid,
+						que: qid
+					},
+					function (data, status) {
+						q_id = obj.getAttribute("id");
+						document.getElementById(q_id).style.display = "none";
+						qid_1 = qid + "+removebook";
+						document.getElementById(qid_1).style.display = "inline";
+					}
+				);
+			}
+		}
+		function removebookmark(obj) {
+			uid = document.getElementById("usr_id").value;
+			qid = obj.getAttribute("name");
+			if (uid == 0) {
+				document.getElementById("msg").innerHTML = "لطفا وارد سیستم شوید"
+				$('#myModal11').modal('show');
+			}
+			else {
+				$.post("/rm_bookmark_1",
+					{
+						usr: uid,
+						que: qid
+					},
+					function (data, status) {
+						q_id = obj.getAttribute("id");
+						qid_1 = qid + "+addbook";
+						document.getElementById(q_id).style.display = 'none';
+						document.getElementById(qid_1).style.display = 'inline';
+					}
+				);
+			}
+		}
+		$(document).ready(function () {
+			$('[data-toggle="popover"]').popover({
+				placement: 'top',
+				trigger: 'hover'
+			});
+		});
+
+	</script>
+</head>
+{% endblock %}
+{% block body %}
+<br>
+<div class="queanscontainer">
+	<input type="hidden" value="{{uuid}}" id="usr_id">
+	{% for i in questionList%}
+	<div class="quebox">
+		<div class="panel panel-info">
+			<div class="panel-heading">
+				<span class="panel-title quetitle">
+					<a href="{{url_for('que_page',qid=i['id'])}}">
+						<span>
+							{{i['title']}}
+						</span>
+					</a>
+				</span>
+			</div>
+			<div class="panel-body">
+				<span class="tag">
+					{% for tagname in i['tags'] %}
+					<a class="label label-info taglable" href="{{url_for('search_perticular_tag',search_tid=tagname['id'])}}">{{tagname['name']}}</a>
+					{% endfor %}
+				</span>
+				<span class="askerinfo">
+					<div>
+						<span>{{i['date']}}</span> : تاریخ ثبت
+					</div>
+					<div>
+						<span><a href="{{url_for('view_profile',uid=i['uid'])}}">{{i['fname']}} {{i['lname']}}</a></span> : توسط
+					</div>
+				</span>
+			</div>
+			<div class="panel-footer" style="direction: rtl">
+				<span>
+					<span class="viewansvotes"></span><span>بازدید : {{i['views']}}</span>
+					<span class="viewansvotes"></span><span>پاسخ : {{i['ans']}}</span>
+					<span class="viewansvotes"></span><span>رای : {{i['votes']}}</span>
+					<span style="float:left">
+						{% if i['answered']==1 %}
+						<span class="bookmarksym" data-toggle="popover" data-content="پاسخ داده شده">
+							<span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+						</span>
+						{% else %}
+
+						<span class="bookmarksym" data-toggle="popover" data-content="پاسخ در آینده" id="{{i['id']}}+add" name="{{i['id']}}"
+						 onclick="addtodo(this)" {% if i['ans_later']==0 %}style="display:inline" {% else %} style="display:none" {%
+						 endif %}>
+							<span class="fa fa-plus-square-o"></span>
+						</span>
+
+						<span class="bookmarksym" data-toggle="popover" data-content="حذف از لیست پاسخ در آینده" id="{{i['id']}}+remove"
+						 name="{{i['id']}}" onclick="removetodo(this)" {% if i['ans_later']==1 %}style="display:inline" {% else %} style="display:none"
+						 {% endif %}>
+							<span class="fa fa-plus-square"></span>
+						</span>
+
+						{% endif %}
+
+						<span class="bookmarksym" data-toggle="popover" id="{{i['id']}}+addbook" name="{{i['id']}}" onclick="addbookmark(this)"
+						 data-content="نشانه گذاری" {% if i['BID']==0 %}style="display:inline" {% else %} style="display:none" {% endif
+						 %}>
+							<span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
+						</span>
+
+						<span class="bookmarksym" data-toggle="popover" id="{{i['id']}}+removebook" name="{{i['id']}}" onclick="removebookmark(this)"
+						 data-content="حذف نشانه" {% if i['BID']==1 %}style="display:inline" {% else %} style="display:none" {%
+						 endif %}>
+							<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+						</span>
+
+					</span>
+
+			</div>
+		</div>
+
+	</div>
+	{% endfor %}
+</div>
+</div>
+<div class="sidebar">
+	<fieldset>
+		<legend>جستجو</legend>
+		<div>
+				<form action="{{url_for('search_question')}}" method="post" name="search_que_form">
+					<div style="width:80%;float:right;margin-right: 5px">
+						<input dir="rtl" class="form-control" type="text" name="search_question_input" id="search_question_input1" placeholder="جستجو سوال" required>
+					</div>
+					<div style="width:10%;float:right;margin-left: 0;">
+					
+						<button type="submit" class="btn btn-default">
+							<span class="glyphicon glyphicon-search"></span>
+						</button>
+					</div>
+				</form>
+	
+				<br><br>
+	
+				<form action="{{url_for('search_tag')}}" method="post" name="search_tag_form">
+					<div style="width:80%;float:right;margin-right: 5px">
+						<input dir="rtl" class="form-control" type="text" name="search_tag_input" id="search_tag_input1" placeholder="جستجو با نشانه" required>
+					</div>
+					<div style="width:10%;float:right;margin-left: 0;">
+						<button type="submit" class="btn btn-default">
+							<span class="glyphicon glyphicon-search"></span>
+						</button>
+					</div>
+				</form>
+				<br>
+		</div>
+	</fieldset>
+	<br>
+	<div style="float: right;padding-right: 5px;">
+        <a href="{{ url_for('ask_question') }}" class="btn btn-primary">پرسش</a>
+	</div>
+	<br>
+</div>
+<div class="clearfix"></div>
+
+{% endblock %}
